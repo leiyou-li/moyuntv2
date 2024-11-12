@@ -1,4 +1,4 @@
-name: 过滤 IPV4 地址
+name: 过滤 IPV4 地址并检测链接有效性
 
 on:
   schedule:
@@ -26,6 +26,27 @@ jobs:
 
     - name: 运行过滤脚本
       run: python script.py
+
+    - name: 检测链接有效性
+      run: |
+        import requests
+
+        def check_links(file_path):
+            valid_links = []
+            with open(file_path, 'r') as file:
+                for line in file:
+                    url = line.strip()
+                    try:
+                        response = requests.get(url, timeout=5)
+                        if response.status_code == 200:
+                            valid_links.append(url)
+                    except requests.exceptions.RequestException:
+                        continue
+            return valid_links
+
+        valid_links = check_links('live_ipv4.txt')
+        with open('live_ipv4.txt', 'w') as file:
+            file.write('\n'.join(valid_links))
 
     - name: 如果有更改则提交并推送
       run: |
