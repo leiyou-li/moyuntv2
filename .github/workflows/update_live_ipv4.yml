@@ -1,139 +1,35 @@
-name   名字: 过滤 IPV4 地址
+name: 过滤 IPV4 地址
 
-on:   :
-  schedule:   日程安排:
+on:
+  schedule:
     - cron: '0 */6 * * *'  # 每隔6小时运行一次
   workflow_dispatch:  # 允许手动触发
 
-permissions:   权限:
-  contents: write   内容:写
+permissions:
+  contents: write
 
-jobs:   工作:
+jobs:
   filter-and-push:
-    runs-on: ubuntu-latest   运行环境：Ubuntu最新版本
-    steps:   步骤:
-    - uses: actions/checkout@v2用法：actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
 
     - name: 设置 Python
-      uses: actions/setup-python@v2用途：actions/setup-python@v2
-      with:   :
-        python-version: '3.x'   Python 版本：“3.x”
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
     - name: 安装依赖
-      run: |   运行:|
-        python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip使用Python命令行界面，输入以下命令：
-```
-python -m pip install --upgrade pip
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
-```
-这将安装或升级pip（Python包管理器）。
+      run: |
+        python -m pip install --upgrade pip
         pip install requests
 
     - name: 运行过滤脚本
-      run: python script.py   运行：Python 脚本.py
+      run: python script.py
 
     - name: 如果有更改则提交并推送
-      run: |   运行:|
+      run: |
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
-        git add live_ipv4.txt   将“live_ipv4.txt”文件添加到Git版本控制系统中。
+        git add live_ipv4.txt
         git diff --quiet && git diff --staged --quiet || (git commit -m "更新 live_ipv4.txt" && git push)
