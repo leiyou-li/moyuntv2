@@ -2,7 +2,7 @@ name: 过滤 IPV4 地址
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # 每隔6小时运行一次
+    - cron: '0 2 * * *'  # 每日凌晨2点运行一次
   workflow_dispatch:  # 允许手动触发
 
 permissions:
