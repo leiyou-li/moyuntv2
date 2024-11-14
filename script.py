@@ -1,4 +1,5 @@
 import requests
+import codecs
 
 def fetch_and_filter(urls):
     filtered_lines = []
@@ -12,14 +13,14 @@ def fetch_and_filter(urls):
             print(f"Failed to fetch content from {url}. Status code: {response.status_code}")
             continue
         
-        content = response.text
+        content = response.content.decode('utf-8-sig')  # 使用utf-8-sig解码以去除BOM
         print(f"Content fetched successfully from {url}")
         
         # 过滤掉包含 "ipv6" 的行
         filtered_lines.extend([line for line in content.splitlines() if 'ipv6' not in line.lower()])
     
     # 保存到新文件
-    with open('live_ipv4.txt', 'w') as file:
+    with open('live_ipv4.txt', 'w', encoding='utf-8') as file:
         file.write('\n'.join(filtered_lines))
     print("Filtered content saved to live_ipv4.txt")
 
