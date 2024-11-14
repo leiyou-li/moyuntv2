@@ -32,4 +32,9 @@ jobs:
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         git add live_ipv4.txt
-        git diff --quiet && git diff --staged --quiet || (git commit -m "更新 live_ipv4.txt" && git push)
+        if git diff --quiet && git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "更新 live_ipv4.txt"
+          git push
+        fi
