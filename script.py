@@ -29,6 +29,6 @@ if __name__ == "__main__":
         'https://raw.githubusercontent.com/leiyou-li/IPTV4/refs/heads/main/live.txt',
         'https://pt.qintutu.top/lives/zxl1.txt',
         'https://pt.qintutu.top/lives/zxl.txt',
-        'https://pt.qintutu.top/lives/beiyong.txt'
+       
     ]
     fetch_and_filter(urls)
