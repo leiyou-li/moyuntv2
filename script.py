@@ -34,8 +34,8 @@ def filter_content(content):
 def check_stream_validity(url):
     try:
         # 使用ffmpeg检查流媒体是否能正常播放
-        command = ['ffmpeg', '-i', url, '-t', '5', '-f', 'null', '-']
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+        command = ['ffmpeg', '-i', url, '-t', '10', '-f', 'null', '-']
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
         if result.returncode == 0:
             return True
         else:
@@ -62,7 +62,7 @@ def fetch_and_filter(urls):
     
     # 检查即将生成的live_ipv4.txt文件中的每个URL直播源是否能正常流畅直播
     valid_lines = []
-    with ThreadPoolExecutor() as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:  # 限制并发请求数量
         futures = []
         for line in filtered_lines:
             if line.startswith('http'):
