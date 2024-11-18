@@ -88,7 +88,10 @@ def fetch_and_filter(urls):
 if __name__ == "__main__":
     urls = [
         'https://raw.githubusercontent.com/leiyou-li/IPTV4/refs/heads/main/live.txt',
-        'https://pt.qintutu.top/lives/zxl1.txt',
-        'https://pt.qintutu.top/lives/zxl.txt',
+        'https://raw.githubusercontent.com/kimwang1978/collect-tv-txt/main/merged_output.txt',
+        'http://xhztv.top/zbc.txt',
+        'http://ww.weidonglong.com/dsj.txt',
+        'https://tv.youdu.fan:666/live/',
+        'https://live.zhoujie218.top/tv/iptv6.txt',
     ]
     fetch_and_filter(urls)
