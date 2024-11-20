@@ -3,6 +3,7 @@ import logging
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 import re
+import time
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -77,7 +78,7 @@ def fetch_and_filter(urls):
                 url = line.split()[0]  # 提取URL部分
                 futures.append(executor.submit(check_stream_validity, url))
             else:
-                valid_lines.append(line)
+                valid_lines.append((0.0, line))
         
         for line, future in zip(filtered_lines, futures):
             if line.startswith('http'):
@@ -101,6 +102,7 @@ def fetch_and_filter(urls):
     logging.info("Filtered content saved to live_ipv4.txt")
 
 if __name__ == "__main__":
+    start_time = time.time()
     urls = [
         'https://raw.githubusercontent.com/leiyou-li/IPTV4/refs/heads/main/live.txt',
         'https://raw.githubusercontent.com/kimwang1978/collect-tv-txt/main/merged_output.txt',
@@ -118,3 +120,5 @@ if __name__ == "__main__":
         'https://live.fanmingming.com/tv/m3u/ipv6.m3u'
     ]
     fetch_and_filter(urls)
+    end_time = time.time()
+    logging.info(f"Total time taken: {end_time - start_time} seconds")
