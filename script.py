@@ -97,8 +97,18 @@ def fetch_and_filter(urls):
     # 提取排序后的行
     sorted_lines = [line for fps, line in valid_lines]
     
+    # 将排序后的直播源插入到原始的#genre#标签中
+    genre_lines = []
+    current_genre = None
+    for line in sorted_lines:
+        if line.startswith('#genre#'):
+            current_genre = line
+            genre_lines.append(line)
+        elif current_genre and line.startswith('http'):
+            genre_lines.append(line)
+    
     with open('live_ipv4.txt', 'w', encoding='utf-8') as file:
-        file.write('\n'.join(sorted_lines))
+        file.write('\n'.join(genre_lines))
     logging.info("Filtered content saved to live_ipv4.txt")
 
 if __name__ == "__main__":
