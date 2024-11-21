@@ -1,9 +1,11 @@
 import requests
 import logging
 import subprocess
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import re
 import time
+import aiohttp
+import asyncio
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -17,36 +19,34 @@ def check_url_validity(url):
         logging.error(f"URL {url} is invalid or unreachable: {e}")
         return False
 
-def fetch_content(url):
-    try:
-        logging.info(f"Fetching content from {url}")
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        return response.content.decode('utf-8-sig')
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to fetch content from {url}: {e}")
-        return None
+async def fetch_content_async(session, url, semaphore):
+    async with semaphore:
+        try:
+            logging.info(f"Fetching content from {url}")
+            async with session.get(url, timeout=10) as response:
+                response.raise_for_status()
+                return await response.text()
+        except aiohttp.ClientError as e:
+            logging.error(f"Failed to fetch content from {url}: {e}")
+            return None
 
-def filter_content(content):
+def filter_content(content, keywords_set):
     if content is None:
         return []
-    keywords = ["㊙VIP测试", "关注公众号", "天微科技", "获取测试密码", "更新时间"]
-    return [line for line in content.splitlines() if 'ipv6' not in line.lower() and not any(keyword in line for keyword in keywords)]
+    return [line for line in content.splitlines() if 'ipv6' not in line.lower() and not any(keyword in line for keyword in keywords_set)]
 
 def check_stream_validity(url):
     try:
-        # 使用ffmpeg检查流媒体是否能正常播放
-        command = ['ffmpeg', '-i', url, '-t', '10', '-f', 'null', '-']
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+        command = ['ffmpeg', '-i', url, '-t', '5', '-f', 'null', '-']
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
         if result.returncode == 0:
-            # 分析ffmpeg的输出信息，估算流畅度
             stderr = result.stderr.decode('utf-8')
             fps_match = re.search(r"(\d+\.?\d*) fps", stderr)
             if fps_match:
                 fps = float(fps_match.group(1))
                 return fps
             else:
-                return 0.0  # 如果没有找到fps信息，返回0.0
+                return 0.0
         else:
             logging.error(f"Stream {url} is not playable: {result.stderr.decode('utf-8')}")
             return 0.0
@@ -57,25 +57,28 @@ def check_stream_validity(url):
         logging.error(f"Error checking stream {url}: {e}")
         return 0.0
 
-def fetch_and_filter(urls):
+async def fetch_and_filter_async(urls):
+    keywords_set = {"㊙VIP测试", "关注公众号", "天微科技", "获取测试密码", "更新时间"}
     filtered_lines = []
     
-    with ThreadPoolExecutor() as executor:
+    semaphore = asyncio.Semaphore(10)  # 限制并发请求数量
+    async with aiohttp.ClientSession() as session:
         # 首先检查URL的有效性
         valid_urls = [url for url in urls if check_url_validity(url)]
-        # 然后获取内容
-        results = list(executor.map(fetch_content, valid_urls))
+        # 然后异步获取内容
+        tasks = [fetch_content_async(session, url, semaphore) for url in valid_urls]
+        contents = await asyncio.gather(*tasks)
     
-    for content in results:
-        filtered_lines.extend(filter_content(content))
+    for content in contents:
+        filtered_lines.extend(filter_content(content, keywords_set))
     
     # 检查即将生成的live_ipv4.txt文件中的每个URL直播源是否能正常流畅直播
     valid_lines = []
-    with ThreadPoolExecutor(max_workers=5) as executor:  # 限制并发请求数量
+    with ProcessPoolExecutor(max_workers=5) as executor:  # 使用进程池
         futures = []
         for line in filtered_lines:
             if line.startswith('http'):
-                url = line.split()[0]  # 提取URL部分
+                url = line.split()[0]
                 futures.append(executor.submit(check_stream_validity, url))
             else:
                 valid_lines.append((0.0, line))
@@ -107,6 +110,7 @@ def fetch_and_filter(urls):
         elif current_genre and line.startswith('http'):
             genre_lines.append(line)
     
+    # 一次性写入文件
     with open('live_ipv4.txt', 'w', encoding='utf-8') as file:
         file.write('\n'.join(genre_lines))
     logging.info("Filtered content saved to live_ipv4.txt")
@@ -129,6 +133,6 @@ if __name__ == "__main__":
         'https://ghp.ci/raw.githubusercontent.com/MemoryCollection/IPTV/refs/heads/main/itvlist.m3u',
         'https://live.fanmingming.com/tv/m3u/ipv6.m3u'
     ]
-    fetch_and_filter(urls)
+    asyncio.run(fetch_and_filter_async(urls))
     end_time = time.time()
     logging.info(f"Total time taken: {end_time - start_time} seconds")
