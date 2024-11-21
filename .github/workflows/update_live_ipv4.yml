@@ -17,17 +17,25 @@ jobs:
     - name: 设置 Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.9'  # 指定具体的Python版本
+
+    - name: 创建 requirements.txt
+      run: |
+        echo "requests" >> requirements.txt
+        echo "aiohttp" >> requirements.txt
 
     - name: 安装依赖
       run: |
         python -m pip install --upgrade pip
-        pip install requests
+        pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
     - name: 安装 ffmpeg
       run: |
         sudo apt-get update
         sudo apt-get install -y ffmpeg
+
+    - name: 验证 aiohttp 安装
+      run: python -c "import aiohttp"
 
     - name: 运行过滤脚本
       run: python script.py
