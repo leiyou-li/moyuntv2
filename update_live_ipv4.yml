@@ -40,6 +40,10 @@ jobs:
     - name: 运行过滤脚本
       run: python script.py
 
+    - name: 打印 live_ipv4.txt 内容
+      run: |
+        cat live_ipv4.txt
+
     - name: 如果有更改则提交并推送
       run: |
         git config --global user.email "action@github.com"
