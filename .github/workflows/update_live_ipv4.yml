@@ -2,7 +2,7 @@ name: 过滤 IPV4 地址
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 每日北京时间凌晨2点运行一次
+    - cron: '0 18 * * *'  # 北京时间凌晨2点运行一次
   workflow_dispatch:  # 允许手动触发
 
 permissions:
@@ -40,6 +40,10 @@ jobs:
     - name: 运行过滤脚本
       run: python script.py
 
+    - name: 打印 live_ipv4.txt 内容
+      run: |
+        cat live_ipv4.txt
+
     - name: 如果有更改则提交并推送
       run: |
         git config --global user.email "action@github.com"
@@ -50,4 +54,4 @@ jobs:
         else
           git commit -m "更新 live_ipv4.txt"
           git push
-        fi  检查一下哪里有问题，为什么不定时启动了
+        fi
