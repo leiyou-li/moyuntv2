@@ -2,7 +2,7 @@ name: 过滤 IPV4 地址
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # 每日凌晨2点运行一次
+    - cron: '0 18 * * *'  # 北京时间凌晨2点运行一次
   workflow_dispatch:  # 允许手动触发
 
 permissions:
@@ -50,4 +50,4 @@ jobs:
         else
           git commit -m "更新 live_ipv4.txt"
           git push
-        fi
+        fi  检查一下哪里有问题，为什么不定时启动了
