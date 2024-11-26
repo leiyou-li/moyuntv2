@@ -1,0 +1,57 @@
+name: 过滤 IPV4 地址
+
+on:
+  schedule:
+    - cron: '0 18 * * *'  # 北京时间凌晨2点运行一次
+  workflow_dispatch:  # 允许手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  filter-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: 设置 Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'  # 指定具体的Python版本
+
+    - name: 创建 requirements.txt
+      run: |
+        echo "requests" >> requirements.txt
+        echo "aiohttp" >> requirements.txt
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+    - name: 安装 ffmpeg
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
+    - name: 验证 aiohttp 安装
+      run: python -c "import aiohttp"
+
+    - name: 运行过滤脚本
+      run: python script.py
+
+    - name: 打印 live_ipv4.txt 内容
+      run: |
+        cat live_ipv4.txt
+
+    - name: 如果有更改则提交并推送
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add live_ipv4.txt
+        if git diff --quiet && git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "更新 live_ipv4.txt"
+          git push
+        fi
