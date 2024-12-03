@@ -1,2 +1,23 @@
+name: Sync to Gitee
 
+on:
+  push:
+    branches: [ main ]  # 可以根据需要修改分支名
+  schedule:
+    - cron: '0 1 * * *'  # 每天凌晨1点自动同步
 
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - name: Sync to Gitee
+        uses: wearerequired/git-mirror-action@master
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+        with:
+          source-repo: "git@github.com:your-username/your-repo.git"
+          destination-repo: "git@gitee.com:your-username/your-repo.git" 
